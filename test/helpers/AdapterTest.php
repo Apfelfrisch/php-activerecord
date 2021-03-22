@@ -43,21 +43,23 @@ class AdapterTest extends DatabaseTest
 
 	public function test_no_host_connection()
 	{
+        $this->expectException(ActiveRecord\DatabaseException::class);
+
 		if (!$GLOBALS['slow_tests']) {
 			throw new ActiveRecord\DatabaseException("");
         }
 
-        $this->expectException(ActiveRecord\DatabaseException::class);
 		ActiveRecord\Connection::instance("{$this->conn->protocol}://user:pass");
 	}
 
 	public function test_connection_failed_invalid_host()
 	{
-		if (!$GLOBALS['slow_tests']) {
+        $this->expectException(ActiveRecord\DatabaseException::class);
+
+        if (!$GLOBALS['slow_tests']) {
 			throw new ActiveRecord\DatabaseException("");
         }
 
-        $this->expectException(ActiveRecord\DatabaseException::class);
 		ActiveRecord\Connection::instance("{$this->conn->protocol}://user:pass/1.1.1.1/db");
 	}
 
@@ -82,15 +84,18 @@ class AdapterTest extends DatabaseTest
 		$port = $conn::$DEFAULT_PORT;
 
 		// Build the connection string with optional password
-    $connection_string = "{$url['scheme']}://{$url['user']}";
-    if(isset($url['pass'])){
-    	$connection_string = "{$connection_string}:{$url['pass']}";
-    }
+        $connection_string = "{$url['scheme']}://{$url['user']}";
+        if(isset($url['pass'])){
+        	$connection_string = "{$connection_string}:{$url['pass']}";
+        }
  		$connection_string = "{$connection_string}@{$url['host']}:$port{$url['path']}";
 
-		if ($this->conn->protocol != 'sqlite') {
-      ActiveRecord\Connection::instance($connection_string);
-    }
+        if ($this->conn->protocol != 'sqlite') {
+            $this->assertInstanceOf(
+                ActiveRecord\MysqlAdapter::class,
+                ActiveRecord\Connection::instance($connection_string)
+            );
+        }
 	}
 
 	public function test_connect_to_invalid_database()

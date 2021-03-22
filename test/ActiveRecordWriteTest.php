@@ -41,6 +41,8 @@ class ActiveRecordWriteTest extends DatabaseTest
 	{
 		$venue = new Venue(array('name' => 'Tito'));
 		$venue->save();
+
+		$this->assert_not_null(Venue::find_by_name('Tito'));
 	}
 
 	public function test_insert()
@@ -50,11 +52,9 @@ class ActiveRecordWriteTest extends DatabaseTest
 		$this->assert_not_null(Author::find($author->id));
 	}
 
-	/**
-	 * @expectedException ActiveRecord\DatabaseException
-	 */
 	public function test_insert_with_no_sequence_defined()
 	{
+        $this->expectException(ActiveRecord\DatabaseException::class);
 		if (!$this->conn->supports_sequences())
 			throw new ActiveRecord\DatabaseException('');
 
@@ -140,12 +140,11 @@ class ActiveRecordWriteTest extends DatabaseTest
 		$this->assert_same($new_name, $book->name, Book::find(1)->name);
 	}
 
-	/**
-	 * @expectedException ActiveRecord\UndefinedPropertyException
-	 */
 	public function test_update_attributes_undefined_property()
 	{
 		$book = Book::find(1);
+
+        $this->expectException(ActiveRecord\UndefinedPropertyException::class);
 		$book->update_attributes(array('name' => 'new name', 'invalid_attribute' => true , 'another_invalid_attribute' => 'blah'));
 	}
 
@@ -159,12 +158,11 @@ class ActiveRecordWriteTest extends DatabaseTest
 		$this->assert_same($new_name, $book->name, Book::find(1)->name);
 	}
 
-	/**
-	 * @expectedException ActiveRecord\UndefinedPropertyException
-	 */
 	public function test_update_attribute_undefined_property()
 	{
 		$book = Book::find(1);
+
+        $this->expectException(ActiveRecord\UndefinedPropertyException::class);
 		$book->update_attribute('invalid_attribute', true);
 	}
 
@@ -278,24 +276,22 @@ class ActiveRecordWriteTest extends DatabaseTest
 		$this->assert_not_null($author->created_at);
 	}
 
-	/**
-	 * @expectedException ActiveRecord\ActiveRecordException
-	 */
 	public function test_update_with_no_primary_key_defined()
 	{
 		Author::table()->pk = array();
 		$author = Author::first();
 		$author->name = 'blahhhhhhhhhh';
+
+        $this->expectException(ActiveRecord\ActiveRecordException::class);
 		$author->save();
 	}
 
-	/**
-	 * @expectedException ActiveRecord\ActiveRecordException
-	 */
 	public function test_delete_with_no_primary_key_defined()
 	{
 		Author::table()->pk = array();
 		$author = author::first();
+
+        $this->expectException(ActiveRecord\ActiveRecordException::class);
 		$author->delete();
 	}
 
@@ -305,12 +301,11 @@ class ActiveRecordWriteTest extends DatabaseTest
 		$this->assert_equals(9999,$author->author_id);
 	}
 
-	/**
-	 * @expectedException ActiveRecord\ReadOnlyException
-	 */
 	public function test_readonly()
 	{
 		$author = Author::first(array('readonly' => true));
+
+        $this->expectException(ActiveRecord\ReadOnlyException::class);
 		$author->save();
 	}
 
