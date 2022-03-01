@@ -904,6 +904,7 @@ class Errors implements IteratorAggregate
 	 *
 	 * @return ArrayIterator
 	 */
+    #[\ReturnTypeWillChange]
 	public function getIterator()
 	{
 		return new ArrayIterator($this->full_messages());
